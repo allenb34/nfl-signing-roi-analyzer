@@ -22,7 +22,8 @@ import streamlit as st
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 PROC = os.path.join(HERE, "data", "processed")
-RAW = os.path.join(HERE, "data", "raw")
+# NOTE: trends_data.csv lives in data/processed/ (committed) -- data/raw/ is
+# gitignored and not present on the Streamlit Cloud deployment.
 
 # ---- Palette ---------------------------------------------------------------
 NEUTRAL_BG = "#0E1117"
@@ -49,7 +50,7 @@ def load_data():
     roi = pd.read_csv(os.path.join(PROC, "roi_estimates.csv"))
     reg = pd.read_csv(os.path.join(PROC, "regression_results.csv"))
     master = pd.read_csv(os.path.join(PROC, "signings_master.csv"))
-    trends = pd.read_csv(os.path.join(RAW, "trends_data.csv"))
+    trends = pd.read_csv(os.path.join(PROC, "trends_data.csv"))
 
     # Bring the trends summary + a couple of master price/attendance fields onto
     # the ROI frame so each page has one tidy row per signing.
