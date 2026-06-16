@@ -54,6 +54,17 @@ DEFAULT_CONFIG = os.path.join(HERE, "signings_config.csv")
 OUTPUT_DIR = os.path.join(HERE, "data", "raw")
 OUTPUT_CSV = os.path.join(OUTPUT_DIR, "trends_data.csv")
 
+# --save-weekly persists the raw weekly series for the Page 2 event-study chart.
+# It goes to data/processed/ (committed) since the dashboard reads it; the
+# summary trends_data.csv stays in data/raw/ unchanged (this is additive).
+PROCESSED_DIR = os.path.join(HERE, "data", "processed")
+WEEKLY_CSV = os.path.join(PROCESSED_DIR, "trends_weekly.csv")
+WEEKLY_COLUMNS = ["player_id", "signing_date", "week_date", "interest_value",
+                  "window"]
+# Google returns daily data for sub-9-month windows; we resample to weekly and
+# keep +/-8 weeks around the signing for a focused, clean event-study line.
+WEEKLY_WINDOW_WEEKS = 8
+
 # Exact output schema for this source (player_id is the join key).
 OUTPUT_COLUMNS = [
     "player_id",
@@ -94,12 +105,15 @@ def load_config(config_path):
 # ===========================================================================
 def fetch_trends(search_term, signing_date, window_weeks, geo, pytrends,
                  max_retries=3):
-    """Pull interest-over-time for one term in a window centred on signing_date
-    and return a dict of pre/post summary stats, or None on failure.
+    """Pull interest-over-time for one term in a window centred on signing_date.
+
+    Returns (summary_stats_dict, raw_series) on success, or (None, None) on
+    failure. raw_series is the full fetched interest series (daily resolution
+    for sub-9-month windows) and is used for the weekly time-series export.
 
     The window is [signing_date - window_weeks, signing_date + window_weeks].
     Rows dated before signing_date form the 'pre' baseline; rows on/after form
-    'post'. Returns None (caller falls back to manual) on any error/empty data.
+    'post'.
     """
     sign_dt = pd.to_datetime(signing_date)
     start = (sign_dt - pd.Timedelta(weeks=window_weeks)).strftime("%Y-%m-%d")
@@ -120,17 +134,17 @@ def fetch_trends(search_term, signing_date, window_weeks, geo, pytrends,
             time.sleep(wait)
     else:
         print(f"    [trends] '{search_term}' gave up after {max_retries} tries.")
-        return None
+        return None, None
 
     if iot is None or iot.empty or search_term not in iot.columns:
-        return None
+        return None, None
 
     series = iot[search_term]
     pre = series[series.index < sign_dt]
     post = series[series.index >= sign_dt]
     if pre.empty or post.empty:
         # Window too narrow / no data either side -> unusable for pre/post.
-        return None
+        return None, None
 
     avg_pre = float(pre.mean())
     avg_post = float(post.mean())
@@ -138,26 +152,51 @@ def fetch_trends(search_term, signing_date, window_weeks, geo, pytrends,
     peak_date = series.idxmax().strftime("%Y-%m-%d")
     lift = ((avg_post - avg_pre) / avg_pre * 100) if avg_pre > 0 else None
 
-    return {
+    stats = {
         "avg_interest_pre": round(avg_pre, 1),
         "avg_interest_post": round(avg_post, 1),
         "peak_interest": peak_val,
         "peak_date": peak_date,
         "interest_lift_pct": round(lift, 1) if lift is not None else None,
     }
+    return stats, series
+
+
+def weekly_records(player_id, signing_date, series):
+    """Resample a (daily) interest series to weekly means and emit one record
+    per week within +/-WEEKLY_WINDOW_WEEKS of the signing, tagged pre/post."""
+    sign_dt = pd.to_datetime(signing_date)
+    weekly = series.resample("W").mean().round().dropna()
+    lo = sign_dt - pd.Timedelta(weeks=WEEKLY_WINDOW_WEEKS)
+    hi = sign_dt + pd.Timedelta(weeks=WEEKLY_WINDOW_WEEKS)
+    weekly = weekly[(weekly.index >= lo) & (weekly.index <= hi)]
+
+    recs = []
+    for week_dt, val in weekly.items():
+        recs.append({
+            "player_id": player_id,
+            "signing_date": signing_date,
+            "week_date": week_dt.strftime("%Y-%m-%d"),
+            "interest_value": int(val),
+            "window": "pre" if week_dt < sign_dt else "post",
+        })
+    return recs
 
 
 # ===========================================================================
 # Step 3 -- Build one output row per signing (fetch -> manual -> missing)
 # ===========================================================================
-def build_row(cfg_row, window_weeks, geo, pytrends, allow_fetch):
+def build_row(cfg_row, window_weeks, geo, pytrends, allow_fetch,
+              save_weekly=False):
+    """Return (summary_row, weekly_rows). weekly_rows is non-empty only when
+    save_weekly and a live series was fetched."""
     term = cfg_row["search_term"]
-    stats = None
+    stats, series = None, None
 
     if allow_fetch and pytrends is not None:
         print(f"  - {cfg_row['player_id']}: querying Trends for '{term}' ...")
-        stats = fetch_trends(term, cfg_row["signing_date"], window_weeks, geo,
-                             pytrends)
+        stats, series = fetch_trends(term, cfg_row["signing_date"], window_weeks,
+                                     geo, pytrends)
         time.sleep(2.0)  # spacing between players to ease rate limiting
 
     if stats is not None:
@@ -184,7 +223,7 @@ def build_row(cfg_row, window_weeks, geo, pytrends, allow_fetch):
                                        "interest_lift_pct")}
             data_source = "missing"
 
-    return {
+    summary_row = {
         "player_id": cfg_row["player_id"],
         "search_term": term,
         "signing_date": cfg_row["signing_date"],
@@ -192,6 +231,12 @@ def build_row(cfg_row, window_weeks, geo, pytrends, allow_fetch):
         **stats,
         "data_source": data_source,
     }
+
+    weekly_rows = []
+    if save_weekly and series is not None:
+        weekly_rows = weekly_records(cfg_row["player_id"],
+                                     cfg_row["signing_date"], series)
+    return summary_row, weekly_rows
 
 
 # ===========================================================================
@@ -258,6 +303,10 @@ def main():
                         help="Trends geo (default US; '' for worldwide).")
     parser.add_argument("--no-fetch", action="store_true",
                         help="Skip pytrends; structure + manual_trends_* only.")
+    parser.add_argument("--save-weekly", action="store_true",
+                        help="Also persist the raw weekly series to "
+                             "data/processed/trends_weekly.csv (for the "
+                             "Page 2 event-study chart).")
     args = parser.parse_args()
 
     print("Loading signings registry ...")
@@ -272,9 +321,12 @@ def main():
         pytrends = TrendReq(hl="en-US", tz=360)
 
     print("\nBuilding trends rows ...")
-    rows = [build_row(r, args.window, args.geo, pytrends,
-                      allow_fetch=not args.no_fetch)
-            for _, r in cfg.iterrows()]
+    results = [build_row(r, args.window, args.geo, pytrends,
+                         allow_fetch=not args.no_fetch,
+                         save_weekly=args.save_weekly)
+               for _, r in cfg.iterrows()]
+    rows = [summary for summary, _ in results]
+    weekly_rows = [wr for _, wlist in results for wr in wlist]
 
     df = pd.DataFrame(rows, columns=OUTPUT_COLUMNS)
 
@@ -287,6 +339,15 @@ def main():
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     df.to_csv(OUTPUT_CSV, index=False)
     print(f"Wrote {len(df)} rows -> {OUTPUT_CSV}")
+
+    # Additive weekly export (does not touch the summary above).
+    if args.save_weekly:
+        wdf = pd.DataFrame(weekly_rows, columns=WEEKLY_COLUMNS)
+        os.makedirs(PROCESSED_DIR, exist_ok=True)
+        wdf.to_csv(WEEKLY_CSV, index=False)
+        n_sign = wdf["player_id"].nunique()
+        print(f"Wrote {len(wdf)} weekly rows across {n_sign} signings "
+              f"-> {WEEKLY_CSV}")
 
 
 if __name__ == "__main__":

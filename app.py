@@ -63,6 +63,13 @@ def load_data():
     return df, reg
 
 
+def load_weekly():
+    """Weekly Trends time-series for the Page 2 event-study chart (Phase 6)."""
+    w = pd.read_csv(os.path.join(PROC, "trends_weekly.csv"))
+    w["week_date"] = pd.to_datetime(w["week_date"])
+    return w
+
+
 def _cached_load():
     # @st.cache_data wrapper (kept separate so load_data stays import-testable).
     return load_data()
@@ -96,23 +103,42 @@ def fig_roi_scatter(df, ycol, title):
     return fig
 
 
-def fig_event_study(row):
-    """Pre vs post search-interest bars with the peak annotated. (The raw weekly
-    series was not persisted by trends_collector, so this shows the window
-    averages + peak rather than a continuous curve.)"""
-    pre, post = row["avg_interest_pre"], row["avg_interest_post"]
+def fig_event_study(wk, signing_date):
+    """Weekly search-interest event-study line for one signing: a continuous
+    line over the ±8-week window, signing date marked, pre/post shaded, peak
+    annotated. Reads the true weekly series (trends_weekly.csv, Phase 6)."""
+    wk = wk.sort_values("week_date")
+    sign_dt = pd.to_datetime(signing_date)
+    xmin, xmax = wk["week_date"].min(), wk["week_date"].max()
+    peak = wk.loc[wk["interest_value"].idxmax()]
+
     fig = go.Figure()
-    fig.add_bar(x=["Pre-signing avg", "Post-signing avg"], y=[pre, post],
-                marker_color=[MUTED, ACCENT],
-                text=[f"{pre:.0f}", f"{post:.0f}"], textposition="outside")
-    fig.add_hline(y=row["peak_interest"], line_dash="dash", line_color=SEA_GREEN,
-                  annotation_text=f"peak {int(row['peak_interest'])} "
-                                  f"({row['peak_date']})",
-                  annotation_font_color=SEA_GREEN)
-    fig.update_layout(template="plotly_dark", height=340,
-                      title=f"Search interest -- window avg "
-                            f"(lift {row['interest_lift_pct']:+.0f}%)",
-                      yaxis_title="Google Trends interest (0-100)",
+    # Shaded windows: pre = gray, post = light blue.
+    fig.add_vrect(x0=xmin, x1=sign_dt, fillcolor=MUTED, opacity=0.10, line_width=0)
+    fig.add_vrect(x0=sign_dt, x1=xmax, fillcolor=ACCENT, opacity=0.12, line_width=0)
+    # The interest line.
+    fig.add_trace(go.Scatter(
+        x=wk["week_date"], y=wk["interest_value"], mode="lines+markers",
+        line=dict(color=ACCENT, width=2.5), marker=dict(size=5),
+        hovertemplate="%{x|%Y-%m-%d}: %{y}<extra></extra>"))
+    # Signing date marker.
+    fig.add_vline(x=sign_dt, line_dash="dash", line_color="#FFFFFF",
+                  annotation_text="Signing announced", annotation_position="top",
+                  annotation_font_color="#FFFFFF")
+    # Peak point + annotation (date and value).
+    fig.add_trace(go.Scatter(
+        x=[peak["week_date"]], y=[peak["interest_value"]], mode="markers",
+        marker=dict(size=12, color=SEA_GREEN, symbol="star"), showlegend=False,
+        hoverinfo="skip"))
+    fig.add_annotation(
+        x=peak["week_date"], y=peak["interest_value"], ax=0, ay=-32,
+        showarrow=True, arrowhead=2, arrowcolor=SEA_GREEN,
+        text=f"peak {int(peak['interest_value'])} "
+             f"({peak['week_date'].strftime('%b %d, %Y')})",
+        font=dict(color=SEA_GREEN, size=11))
+    fig.update_layout(template="plotly_dark", height=360, showlegend=False,
+                      title="Weekly search interest (±8 weeks around signing)",
+                      yaxis_title="Google Trends interest (0-100)", xaxis_title="",
                       paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
                       margin=dict(l=10, r=10, t=50, b=10))
     return fig
@@ -234,9 +260,16 @@ def page_deep_dive(df, reg):
                 unsafe_allow_html=True)
     st.write("")
 
+    weekly = st.cache_data(load_weekly)()
+    wk = weekly[weekly["player_id"] == row["player_id"]]
+
     left, right = st.columns([3, 2])
     with left:
-        st.plotly_chart(fig_event_study(row), use_container_width=True)
+        if wk.empty:
+            st.info("No weekly Trends series for this signing.")
+        else:
+            st.plotly_chart(fig_event_study(wk, row["signing_date"]),
+                            use_container_width=True)
     with right:
         st.markdown("**Revenue-lift breakdown**")
         st.markdown(
