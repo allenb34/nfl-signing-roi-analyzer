@@ -1,0 +1,12 @@
+# Dark, league-neutral base theme (Seahawks colors are applied only on the
+# Seahawks module page, via in-app CSS). See app.py.
+[theme]
+base = "dark"
+primaryColor = "#5B8FF9"
+backgroundColor = "#0E1117"
+secondaryBackgroundColor = "#1A1D24"
+textColor = "#FAFAFA"
+font = "sans serif"
+
+[server]
+headless = true

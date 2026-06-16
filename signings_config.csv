@@ -1,0 +1,42 @@
+# ============================================================================
+# signings_config.csv  --  SINGLE SOURCE OF TRUTH for join keys + manual inputs
+# ----------------------------------------------------------------------------
+# Every collector reads player_id + signing_date from this file. player_id is
+# the unique primary key that stitches all per-source CSVs together.
+#
+# KEY / DESCRIPTIVE COLUMNS
+#   player_id, player_name, signing_date(ISO), team, attendance_team, position,
+#   archetype, search_term  -- see prior notes. attendance_team is the team
+#   whose attendance we measure (Seattle for the Wilson-2022 departure).
+#
+# CONTRACT (manual): manual_aav, manual_total, manual_guaranteed, manual_years
+#
+# ATTENDANCE (manual; PFR blocks scrapers with 403, so these are authoritative)
+#   manual_att_pre / _post_1 / _post_2 : avg home attendance per game for the
+#       seasons the collector computes from signing_date (pre=year-1,
+#       post_1=year, post_2=year+1). Blank = no data (e.g. 2025 not yet used).
+#   att_src_pre / _post_1 / _post_2    : provenance per cell:
+#       espn_confirmed     = confirmed ESPN figure
+#       estimated          = non-Seattle estimate within +/-2%
+#       estimated_capacity = Seattle sellout assumed at Lumen capacity 68,338
+#       covid_void         = 0 fans (2020 COVID closure)
+#       covid_limited      = reduced COVID capacity (~14k)
+#       na                 = intentionally no data (season N/A)
+#   covid_pre / _post_1 / _post_2      : True if that season is COVID-distorted.
+#       Per the brief these observations are flagged & EXCLUDED (not imputed).
+#
+# Lines starting with '#' are ignored by the loader.
+# ============================================================================
+player_id,player_name,signing_date,team,attendance_team,position,archetype,search_term,otc_url,manual_aav,manual_total,manual_guaranteed,manual_years,manual_att_pre,manual_att_post_1,manual_att_post_2,att_src_pre,att_src_post_1,att_src_post_2,covid_pre,covid_post_1,covid_post_2
+russell_wilson_2015,Russell Wilson,2015-07-31,Seattle Seahawks,Seattle Seahawks,QB,QB,Russell Wilson,,21900000,87600000,60000000,4,68338,68338,68338,estimated_capacity,estimated_capacity,estimated_capacity,False,False,False
+russell_wilson_2019,Russell Wilson,2019-04-15,Seattle Seahawks,Seattle Seahawks,QB,QB,Russell Wilson,,35000000,140000000,107000000,4,68338,68338,0,estimated_capacity,estimated_capacity,covid_void,False,False,True
+russell_wilson_2022,Russell Wilson (Departure),2022-03-08,Denver Broncos,Seattle Seahawks,QB,QB,Russell Wilson,,49000000,245000000,165000000,5,68408,68338,68338,espn_confirmed,estimated_capacity,estimated_capacity,False,False,False
+geno_smith_2023,Geno Smith,2023-03-09,Seattle Seahawks,Seattle Seahawks,QB,QB,Geno Smith,,35000000,105000000,40000000,3,68338,68338,68338,estimated_capacity,estimated_capacity,estimated_capacity,False,False,False
+dk_metcalf_2022,DK Metcalf,2022-09-01,Seattle Seahawks,Seattle Seahawks,WR,Skill,DK Metcalf,,24000000,72000000,58000000,3,68408,68338,68338,espn_confirmed,estimated_capacity,estimated_capacity,False,False,False
+davante_adams_2022,Davante Adams,2022-03-17,Las Vegas Raiders,Las Vegas Raiders,WR,Skill,Davante Adams,,28250000,141250000,67500000,5,61185,61500,62000,espn_confirmed,estimated,estimated,False,False,False
+tyreek_hill_2022,Tyreek Hill,2022-03-17,Miami Dolphins,Miami Dolphins,WR,Skill,Tyreek Hill,,30000000,120000000,72000000,4,64374,65000,65500,espn_confirmed,estimated,estimated,False,False,False
+odell_beckham_2021,Odell Beckham Jr.,2021-11-11,Los Angeles Rams,Los Angeles Rams,WR,Skill,Odell Beckham,,4250000,4250000,4250000,1,0,71598,70000,covid_void,espn_confirmed,estimated,True,False,False
+patrick_mahomes_2020,Patrick Mahomes,2020-07-06,Kansas City Chiefs,Kansas City Chiefs,QB,QB,Patrick Mahomes,,45000000,450000000,141000000,10,73227,14000,73227,estimated,covid_limited,espn_confirmed,False,True,False
+deshaun_watson_2022,Deshaun Watson,2022-03-18,Cleveland Browns,Cleveland Browns,QB,QB,Deshaun Watson,,46000000,230000000,230000000,5,67431,67500,67500,espn_confirmed,estimated,estimated,False,False,False
+justin_jefferson_2024,Justin Jefferson,2024-09-12,Minnesota Vikings,Minnesota Vikings,WR,Skill,Justin Jefferson,,35000000,140000000,110000000,4,66701,66800,,estimated,estimated,na,False,False,False
+ceedee_lamb_2024,CeeDee Lamb,2024-08-01,Dallas Cowboys,Dallas Cowboys,WR,Skill,CeeDee Lamb,,34000000,136000000,100000000,4,93594,92972,,espn_confirmed,espn_confirmed,na,False,False,False

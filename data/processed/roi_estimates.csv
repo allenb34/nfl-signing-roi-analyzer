@@ -1,0 +1,13 @@
+player_id,player_name,archetype,attendance_team,signing_type,market_saturation,contract_aav_millions,contract_guaranteed_millions,abnormal_search_lift_pp,abnormal_attendance_lift_pct_y1,search_roi,attendance_roi,attendance_roi_note,guarantee_efficiency,price_lift_pct,price_roi,price_roi_note,price_data_confidence,price_confidence_weight
+russell_wilson_2015,Russell Wilson,QB,Seattle Seahawks,extension,saturated,21.9,60.0,-43.73,-0.09,-1.997,,saturated_capacity,-0.729,5.1,0.233,,low,0.25
+russell_wilson_2019,Russell Wilson,QB,Seattle Seahawks,extension,saturated,35.0,107.0,-25.35,-0.09,-0.724,,saturated_capacity,-0.237,-6.2,-0.177,,medium,0.5
+russell_wilson_2022,Russell Wilson (Departure),QB,Seattle Seahawks,departure,saturated,49.0,165.0,32.04,-0.19,0.654,,saturated_capacity,0.194,-10.7,-0.218,,high,1.0
+geno_smith_2023,Geno Smith,QB,Seattle Seahawks,extension,saturated,35.0,40.0,-154.86,-0.09,-4.425,,saturated_capacity,-3.872,2.0,0.057,,high,1.0
+dk_metcalf_2022,DK Metcalf,Skill,Seattle Seahawks,extension,saturated,24.0,58.0,-11.32,-0.19,-0.472,,saturated_capacity,-0.195,-8.9,-0.371,,high,1.0
+davante_adams_2022,Davante Adams,Skill,Las Vegas Raiders,free_agent,non_saturated,28.25,67.5,-29.24,0.42,-1.035,0.015,,-0.433,21.6,0.765,,high,1.0
+tyreek_hill_2022,Tyreek Hill,Skill,Miami Dolphins,free_agent,non_saturated,30.0,72.0,-25.1,0.88,-0.837,0.029,,-0.349,17.6,0.587,,high,1.0
+odell_beckham_2021,Odell Beckham Jr.,Skill,Los Angeles Rams,free_agent,non_saturated,4.25,4.25,-95.07,,-22.369,,covid_excluded,-22.369,,,covid_excluded,medium,0.5
+patrick_mahomes_2020,Patrick Mahomes,QB,Kansas City Chiefs,extension,saturated,45.0,141.0,223.28,,4.962,,saturated_capacity;covid_excluded,1.584,,,covid_excluded,medium,0.5
+deshaun_watson_2022,Deshaun Watson,QB,Cleveland Browns,free_agent,non_saturated,46.0,230.0,-52.72,0.01,-1.146,0.0,,-0.229,12.1,0.263,,high,1.0
+justin_jefferson_2024,Justin Jefferson,Skill,Minnesota Vikings,extension,non_saturated,35.0,110.0,-22.72,0.06,-0.649,0.002,,-0.207,13.6,0.389,,high,1.0
+ceedee_lamb_2024,CeeDee Lamb,Skill,Dallas Cowboys,extension,saturated,34.0,100.0,204.83,-0.75,6.024,,saturated_capacity,2.048,4.3,0.126,,high,1.0

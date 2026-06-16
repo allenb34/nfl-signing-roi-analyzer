@@ -1,0 +1,7 @@
+# Streamlit Community Cloud deployment -- app.py is presentation-only, so it
+# needs just these three. (The pipeline scripts additionally use statsmodels,
+# requests, beautifulsoup4, lxml, pytrends, truststore -- not required to run
+# the dashboard, which reads pre-computed CSVs.)
+streamlit>=1.40
+pandas>=2.0
+plotly>=5.20

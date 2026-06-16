@@ -1,0 +1,13 @@
+player_id,attendance_team,signing_date,window_pre,window_post,season1_label,price_data_confidence,price_pre_30d,price_post_30d,price_post_season1,src_pre,src_post,src_season1
+russell_wilson_2015,Seattle Seahawks,2015-07-31,2015-07-01..2015-07-31,2015-07-31..2015-08-30,2015 NFL season (Sep 2015-Jan 2016),low,415,436,436,annual_avg_proxy,annual_avg_proxy,annual_avg_proxy
+russell_wilson_2019,Seattle Seahawks,2019-04-15,2019-03-16..2019-04-15,2019-04-15..2019-05-15,2019 NFL season (Sep 2019-Jan 2020),medium,320,300,295,annual_avg_proxy,annual_avg_proxy,annual_avg_proxy
+russell_wilson_2022,Seattle Seahawks,2022-03-08,2022-02-06..2022-03-08,2022-03-08..2022-04-07,2022 NFL season (Sep 2022-Jan 2023),high,280,250,245,annual_avg_proxy,annual_avg_proxy,annual_avg_proxy
+geno_smith_2023,Seattle Seahawks,2023-03-09,2023-02-07..2023-03-09,2023-03-09..2023-04-08,2023 NFL season (Sep 2023-Jan 2024),high,250,255,240,annual_avg_proxy,annual_avg_proxy,annual_avg_proxy
+dk_metcalf_2022,Seattle Seahawks,2022-09-01,2022-08-02..2022-09-01,2022-09-01..2022-10-01,2022 NFL season (Sep 2022-Jan 2023),high,280,255,250,annual_avg_proxy,annual_avg_proxy,annual_avg_proxy
+davante_adams_2022,Las Vegas Raiders,2022-03-17,2022-02-15..2022-03-17,2022-03-17..2022-04-16,2022 NFL season (Sep 2022-Jan 2023),high,510,620,675,annual_avg_proxy,industry_coverage,industry_coverage
+tyreek_hill_2022,Miami Dolphins,2022-03-17,2022-02-15..2022-03-17,2022-03-17..2022-04-16,2022 NFL season (Sep 2022-Jan 2023),high,170,200,195,annual_avg_proxy,annual_avg_proxy,annual_avg_proxy
+odell_beckham_2021,Los Angeles Rams,2021-11-11,2021-10-12..2021-11-11,2021-11-11..2021-12-11,2021 NFL season (Sep 2021-Jan 2022),medium,,290,280,covid_distorted,annual_avg_proxy,annual_avg_proxy
+patrick_mahomes_2020,Kansas City Chiefs,2020-07-06,2020-06-06..2020-07-06,2020-07-06..2020-08-05,2020 NFL season (Sep 2020-Jan 2021),medium,,,,covid_distorted,covid_distorted,covid_distorted
+deshaun_watson_2022,Cleveland Browns,2022-03-18,2022-02-16..2022-03-18,2022-03-18..2022-04-17,2022 NFL season (Sep 2022-Jan 2023),high,165,185,155,annual_avg_proxy,annual_avg_proxy,annual_avg_proxy
+justin_jefferson_2024,Minnesota Vikings,2024-09-12,2024-08-13..2024-09-12,2024-09-12..2024-10-12,2024 NFL season (Sep 2024-Jan 2025),high,220,250,245,annual_avg_proxy,annual_avg_proxy,annual_avg_proxy
+ceedee_lamb_2024,Dallas Cowboys,2024-08-01,2024-07-02..2024-08-01,2024-08-01..2024-08-31,2024 NFL season (Sep 2024-Jan 2025),high,690,720,700,industry_coverage,annual_avg_proxy,annual_avg_proxy

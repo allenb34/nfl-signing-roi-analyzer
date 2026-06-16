@@ -1,0 +1,17 @@
+model,variable,coef,std_err,t_stat,p_value,ci_lower,ci_upper
+Model A,Intercept,-41.94654,10.8279,-3.8739,0.0001,-63.16882,-20.72425
+Model A,market_saturation[T.saturated],4.17982,1.45829,2.8662,0.0042,1.32162,7.03801
+Model A,C(archetype)[T.Skill],5.04472,1.91587,2.6331,0.0085,1.28967,8.79976
+Model A,np.log(contract_aav_millions),10.49995,2.82671,3.7145,0.0002,4.9597,16.0402
+Model A (ex-Watson),Intercept,-42.14886,11.31094,-3.7264,0.0002,-64.31789,-19.97982
+Model A (ex-Watson),market_saturation[T.saturated],4.67817,2.2447,2.0841,0.0372,0.27864,9.07771
+Model A (ex-Watson),C(archetype)[T.Skill],5.43833,2.75932,1.9709,0.0487,0.03016,10.84651
+Model A (ex-Watson),np.log(contract_aav_millions),10.38371,2.95977,3.5083,0.0005,4.58268,16.18474
+Model B,Intercept,1.34664,2.47369,0.5444,0.5862,-3.5017,6.19499
+Model B,market_saturation[T.saturated],-0.59225,0.30001,-1.9741,0.0484,-1.18026,-0.00424
+Model B,C(archetype)[T.Skill],0.01329,0.33383,0.0398,0.9682,-0.64101,0.66759
+Model B,np.log(contract_aav_millions),-0.24228,0.66231,-0.3658,0.7145,-1.54039,1.05583
+Model B (ex-Watson),Intercept,1.255,3.32708,0.3772,0.706,-5.26597,7.77596
+Model B (ex-Watson),market_saturation[T.saturated],-0.71628,0.54843,-1.306,0.1915,-1.79118,0.35863
+Model B (ex-Watson),C(archetype)[T.Skill],-0.10029,0.58987,-0.17,0.865,-1.25642,1.05584
+Model B (ex-Watson),np.log(contract_aav_millions),-0.16733,0.89104,-0.1878,0.851,-1.91374,1.57908
